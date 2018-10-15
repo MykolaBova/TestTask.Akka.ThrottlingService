@@ -12,6 +12,7 @@ class ApiSpec extends FlatSpec
   with BeforeAndAfterAll
   with RestApi {
 
+  // TODO: Very simple test To extend later
   "The Server" should "return Ok response when get all tweets" in {
 
     Get("/") ~> route ~> check {
