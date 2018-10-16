@@ -6,20 +6,10 @@ import akka.http.scaladsl.server.Route
 
 import scala.collection.immutable
 
-trait RestApi {
-  val route: Route =
-    pathSingleSlash {
-      get { ctx =>
-        val headers: immutable.Seq[HttpHeader] = ctx.request.headers
-        val token: Option[String] = getHeaderByName(headers, "Authorization")
+object  RestApi {
+  final val HTTP_HEADER_NAME_AUTHORIZATION = "Authorization"
 
-        ctx.complete {
-          generateHttpResponse(token)
-        }
-      }
-    }
-
-  private def generateHttpResponse(token: Option[String]): String = {
+  def generateHttpResponse(token: Option[String]): String = {
     if (token.isEmpty) {
       s"User is not authorized"
     } else {
@@ -27,8 +17,7 @@ trait RestApi {
     }
   }
 
-  // TODO: quick and dirty hack To replace with standard way of retrieving HTTP headers later
-  private def getHeaderByName(headers: immutable.Seq[HttpHeader], headerName: String) : Option[String] = {
+  def getHeaderByName(headers: immutable.Seq[HttpHeader], headerName: String) : Option[String] = {
     if(headers.isEmpty)
       None
     else {
@@ -46,4 +35,18 @@ trait RestApi {
       else Option(res(0)._2)
     }
   }
+}
+
+trait RestApi {
+  val route: Route =
+    pathSingleSlash {
+      get { ctx =>
+        val headers: immutable.Seq[HttpHeader] = ctx.request.headers
+        val token: Option[String] = RestApi.getHeaderByName(headers, RestApi.HTTP_HEADER_NAME_AUTHORIZATION)
+
+        ctx.complete {
+          RestApi.generateHttpResponse(token)
+        }
+      }
+    }
 }
