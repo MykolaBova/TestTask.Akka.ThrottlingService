@@ -27,7 +27,8 @@ object RestApiApp extends RestApi {
     bindingFuture.map { serverBinding =>
       log.info(s"RestApi bound to ${serverBinding.localAddress} ") }
 
-    println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
+    log.info(s"Server online at http://localhost:8080/")
+    log.info(s"Press RETURN to stop...")
     scala.io.StdIn.readLine()
 
     bindingFuture
