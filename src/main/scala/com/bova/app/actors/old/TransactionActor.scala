@@ -1,4 +1,4 @@
-package com.bova.app.actors
+package com.bova.app.actors.old
 
 import akka.actor.{Actor, ActorRef}
 
