@@ -7,7 +7,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 object AkkaApp extends App {
@@ -48,7 +48,7 @@ object AkkaApp extends App {
           implicit val timeout: Timeout = Timeout(10 seconds)
           implicit val ec: ExecutionContextExecutor = ExecutionContext.global
           val transaction = Transaction(UUID.randomUUID(), BankId(senderId), BankId(sreceiverId), money)
-          val routeRequest = (supervisor ? ActorRouteRequest(BankId(senderId))).mapTo[ActorRef]
+          val routeRequest: Future[ActorRef] = (supervisor ? ActorRouteRequest(BankId(senderId))).mapTo[ActorRef]
 
           routeRequest.onComplete{
             case Success(actorRef) =>
