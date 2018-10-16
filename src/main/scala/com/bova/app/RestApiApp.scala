@@ -1,6 +1,7 @@
 package com.bova.app
 
 import akka.actor.ActorSystem
+import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.bova.app.rest.RestApi
@@ -20,8 +21,11 @@ object RestApiApp extends RestApi {
     val host = config.getString("http.host") // Gets the host and a port from the configuration
     val port = config.getInt("http.port")
 
-    val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
-    //val bindingFuture = Http().bindAndHandle(route, host, port)
+    val bindingFuture = Http().bindAndHandle(route, host, port)
+
+    val log =  Logging(system.eventStream, "bova-sys")
+    bindingFuture.map { serverBinding =>
+      log.info(s"RestApi bound to ${serverBinding.localAddress} ") }
 
     println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
     scala.io.StdIn.readLine()
