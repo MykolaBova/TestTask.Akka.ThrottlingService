@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
-import com.bova.app.throtting.rest.RestApi
+import com.bova.app.rest.RestApi
 import com.typesafe.config.Config
 
 import scala.concurrent.{ExecutionContextExecutor, Future}

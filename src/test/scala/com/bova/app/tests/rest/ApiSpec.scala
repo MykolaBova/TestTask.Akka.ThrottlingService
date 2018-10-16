@@ -2,7 +2,7 @@ package com.bova.app.tests.rest
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import com.bova.app.throtting.rest.RestApi
+import com.bova.app.rest.RestApi
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, MustMatchers}
 
 class ApiSpec extends FlatSpec

@@ -1,4 +1,4 @@
-package com.bova.app.throtting.actors
+package com.bova.app.services.throtting.actors
 
 import akka.actor.Actor
 
