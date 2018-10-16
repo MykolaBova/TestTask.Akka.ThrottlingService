@@ -1,3 +1,4 @@
+import sbt.Keys.libraryDependencies
 import sbt._
 
 
@@ -24,6 +25,7 @@ libraryDependencies ++= {
 
     "ch.qos.logback"    %  "logback-classic" % "1.1.3",
     "org.scalatest"     %% "scalatest"       % "3.0.5"       % "test",
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.0"
 
   )
 }

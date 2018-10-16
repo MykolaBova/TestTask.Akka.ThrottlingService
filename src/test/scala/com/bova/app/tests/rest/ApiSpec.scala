@@ -1,4 +1,4 @@
-package com.bova.app.testable.rest
+package com.bova.app.tests.rest
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
