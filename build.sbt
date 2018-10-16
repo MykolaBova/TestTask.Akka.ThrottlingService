@@ -18,8 +18,9 @@ libraryDependencies ++= {
 
     "com.typesafe.akka" %% "akka-http"         % akkaHttpVersion,
     "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
-//    "com.typesafe.akka" %% "akka-http-experimental"  % akkaHttpVersion,
-//    "com.typesafe.akka" %% "akka-http-spray-json-experimental"  % akkaHttpVersion,
+
+    "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+    "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % "test",
 
     "ch.qos.logback"    %  "logback-classic" % "1.1.3",
     "org.scalatest"     %% "scalatest"       % "3.0.5"       % "test",
