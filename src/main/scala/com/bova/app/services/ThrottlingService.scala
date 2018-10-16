@@ -1,15 +1,17 @@
 package com.bova.app.services
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.{Logging, LoggingAdapter}
+import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.bova.app.rest.RestApi
+import com.bova.app.services.throtting.actors.{AllowedByTokenRequest, AllowedByTokenResponse, DispatcherActor}
 import com.typesafe.config.{Config, ConfigFactory}
 
+import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
-import scala.concurrent.duration._
 
 trait ThrottlingService {
   val graceRps:Int // configurable
@@ -33,24 +35,31 @@ class ThrottlingServiceImpl extends ThrottlingService {
 
   val log: LoggingAdapter =  Logging(RestApi.system.eventStream, "ThrottlingServiceImpl")
 
+  val dispatcher: ActorRef = system.actorOf(Props[DispatcherActor], "dispatcher")
+
   override def isRequestAllowed(token: Option[String]): Boolean = {
     log.info("--> isRequestAllowed")
-    var rps : Int = graceRps
+    var allowed : Boolean = false
 
     if(token.isDefined) {
-      val f: Future[Sla] = slaService.getSlaByToken(token.get.trim)
+      val slaResponseFuture: Future[AllowedByTokenResponse] =
+        (dispatcher ? AllowedByTokenRequest(token.get.trim)).mapTo[AllowedByTokenResponse]
 
-      f.onComplete {
-        case Success(value) =>
-          rps = value.rps
-        case Failure(e) =>
-          log.error(e.toString)
+      slaResponseFuture.onComplete {
+        case Success(getSlaByTokenResponse) =>
+          if(getSlaByTokenResponse.allowed.isDefined) {
+            log.info(s">> getSlaByTokenResponse = ${getSlaByTokenResponse.allowed.get}")
+            allowed = getSlaByTokenResponse.allowed.get
+          } else {
+            log.info(s">> getSlaByTokenResponse = None")
+          }
+        case Failure(exception) =>
+          log.error(s"** Exception was thrown, $exception")
       }
     }
 
-    log.info(s">> rps == $rps")
-    log.info(s">> graceRps == $graceRps")
+    log.info(s">> allowed == $allowed")
     log.info("<-- isRequestAllowed")
-    rps > graceRps
+    allowed
   }
 }
