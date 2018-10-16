@@ -6,7 +6,7 @@ import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.bova.app.rest.RestApi
-import com.bova.app.services.throtting.actors.{AllowedByTokenRequest, AllowedByTokenResponse, DispatcherActor}
+import com.bova.app.services.throtting.actors.{DispatcherActor, GetAllowedByTokenRequest, GetAllowedByTokenResponse}
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.duration._
@@ -29,8 +29,8 @@ class ThrottlingServiceImpl extends ThrottlingService {
 
   implicit val system: ActorSystem = RestApi.system
   implicit val actorMaterializer: ActorMaterializer = RestApi.actorMaterializer
-
   implicit val ec: ExecutionContextExecutor = RestApi.ec
+
   implicit val timeout: Timeout = Timeout(10 seconds)
 
   val log: LoggingAdapter =  Logging(RestApi.system.eventStream, "ThrottlingServiceImpl")
@@ -42,10 +42,10 @@ class ThrottlingServiceImpl extends ThrottlingService {
     var allowed : Boolean = false
 
     if(token.isDefined) {
-      val slaResponseFuture: Future[AllowedByTokenResponse] =
-        (dispatcher ? AllowedByTokenRequest(token.get.trim)).mapTo[AllowedByTokenResponse]
+      val getAllowedByTokenResponseFuture: Future[GetAllowedByTokenResponse] =
+        (dispatcher ? GetAllowedByTokenRequest(token.get.trim)).mapTo[GetAllowedByTokenResponse]
 
-      slaResponseFuture.onComplete {
+      getAllowedByTokenResponseFuture.onComplete {
         case Success(getSlaByTokenResponse) =>
           if(getSlaByTokenResponse.allowed.isDefined) {
             log.info(s">> getSlaByTokenResponse = ${getSlaByTokenResponse.allowed.get}")
