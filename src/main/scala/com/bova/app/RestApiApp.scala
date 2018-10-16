@@ -1,39 +1,38 @@
 package com.bova.app
 
 import akka.actor.ActorSystem
-import akka.event.Logging
+import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.bova.app.rest.RestApi
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.Config
 
-import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
 object RestApiApp extends RestApi {
 
   def main(args: Array[String]) {
 
-    implicit val system: ActorSystem = ActorSystem("system")
-    implicit val actorMaterializer: ActorMaterializer = ActorMaterializer()
-    implicit val ec: ExecutionContextExecutor = system.dispatcher
+    implicit val system: ActorSystem = RestApi.system
+    implicit val actorMaterializer: ActorMaterializer = RestApi.actorMaterializer
+    implicit val ec: ExecutionContextExecutor = RestApi.ec
 
-    val config = ConfigFactory.load()
-    val host = config.getString("http.host") // Gets the host and a port from the configuration
-    val port = config.getInt("http.port")
+    val config: Config = RestApi.config
+    val host: String = config.getString("http.host") // Gets the host and a port from the configuration
+    val port: Int = config.getInt("http.port")
 
-    val bindingFuture = Http().bindAndHandle(route, host, port)
+    val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, host, port)
 
-    val log =  Logging(system.eventStream, "bova-sys")
+    val log: LoggingAdapter =  Logging(RestApi.system.eventStream, "RestApiApp")
+
     bindingFuture.map { serverBinding =>
       log.info(s"RestApi bound to ${serverBinding.localAddress} ") }
-
-    log.info(s"Server online at http://localhost:8080/")
     log.info(s"Press RETURN to stop...")
+
     scala.io.StdIn.readLine()
 
     bindingFuture
       .flatMap(_.unbind())
-      .onComplete(_ => system.terminate())
-
+      .onComplete(_ => RestApi.system.terminate())
   }
 }
