@@ -1,4 +1,4 @@
-package com.bova.app
+package com.bova.app.rest
 
 import akka.http.scaladsl.model.HttpHeader
 import akka.http.scaladsl.server.Directives.{get, pathSingleSlash}

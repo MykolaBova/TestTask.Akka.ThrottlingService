@@ -1,10 +1,9 @@
-package com.bova.app.testable
+package com.bova.app.testable.rest
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import com.bova.app.RestApi
-import org.scalatest.MustMatchers
-import org.scalatest.{BeforeAndAfterAll, FlatSpec}
+import com.bova.app.rest.RestApi
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, MustMatchers}
 
 class ApiSpec extends FlatSpec
   with MustMatchers
