@@ -1,4 +1,4 @@
-package com.bova.app.rest
+package com.bova.app.throtting.rest
 
 import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}

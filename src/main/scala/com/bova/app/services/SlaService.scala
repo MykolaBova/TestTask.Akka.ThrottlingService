@@ -1,6 +1,6 @@
 package com.bova.app.services
 
-import com.bova.app.rest.RestApi
+import com.bova.app.throtting.rest.RestApi
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 

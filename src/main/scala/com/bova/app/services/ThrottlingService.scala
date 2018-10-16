@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
-import com.bova.app.rest.RestApi
+import com.bova.app.throtting.rest.RestApi
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
