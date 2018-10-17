@@ -27,6 +27,14 @@ class DispatcherActor extends Actor {
 
   val registry: ActorRef = system.actorOf(Props[RegistryActor], "registry")
 
+  val router: ActorRef = system.actorOf(Props[RpsCalculatorRoutersPool])
+
+  system.actorOf(Props[RpsCalculatorActor], "rps1")
+  system.actorOf(Props[RpsCalculatorActor], "rps2")
+  system.actorOf(Props[RpsCalculatorActor], "rps3")
+  system.actorOf(Props[RpsCalculatorActor], "rps4")
+  system.actorOf(Props[RpsCalculatorActor], "rps5")
+
   var user: Option[User] = None
 
   override def receive: Receive = {
@@ -52,6 +60,8 @@ class DispatcherActor extends Actor {
       } else {
         log.info(s">> getUserResponse = None")
         // create corresponding worker
+        router ! GetCalculateRps(command.token)
+
         // before SLA will be returned by SlaService, use graceRps for calculating PRS
       }
 
