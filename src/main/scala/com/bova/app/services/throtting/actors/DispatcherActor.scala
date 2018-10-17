@@ -27,18 +27,21 @@ class DispatcherActor extends Actor {
 
   val registry: ActorRef = system.actorOf(Props[RegistryActor], "registry")
 
+
   val router: ActorRef = system.actorOf(Props[RpsCalculatorRoutersPool])
 
-  system.actorOf(Props[RpsCalculatorActor], "rps1")
-  system.actorOf(Props[RpsCalculatorActor], "rps2")
-  system.actorOf(Props[RpsCalculatorActor], "rps3")
-  system.actorOf(Props[RpsCalculatorActor], "rps4")
-  system.actorOf(Props[RpsCalculatorActor], "rps5")
+  var calc1 : ActorRef = system.actorOf(Props[RpsCalculatorActor], "rps1")
+  var calc2 : ActorRef = system.actorOf(Props[RpsCalculatorActor], "rps2")
+  var calc3 : ActorRef = system.actorOf(Props[RpsCalculatorActor], "rps3")
+  var calc4 : ActorRef = system.actorOf(Props[RpsCalculatorActor], "rps4")
+  var calc5 : ActorRef = system.actorOf(Props[RpsCalculatorActor], "rps5")
 
   var user: Option[User] = None
 
   override def receive: Receive = {
     case command : GetAllowedByTokenRequest =>
+
+      implicit val timeout: Timeout = Timeout(10 seconds)
       log.info("==> GetAllowedByTokenRequest command")
 
       // Get User from Registry by token
@@ -53,10 +56,26 @@ class DispatcherActor extends Actor {
           user = None
       }
 
+      var allowed : Boolean = false
+
       // Calculate if given operation is allowed or no
       if (user.isDefined) {
+        implicit val timeout: Timeout = Timeout(10 seconds)
+
         log.info(s">> getUserResponse = ${user.get}")
         // ask corresponding Worker
+        val getRpsRespFuture: Future[GetRpsResp] =
+          (context.actorSelection("/user/"+user.get.user.get) ? GetRps()).mapTo[GetRpsResp]
+
+        getRpsRespFuture.onComplete {
+          case Success(getRpsResp) =>
+            allowed = getRpsResp.allowed
+          case Failure(exception) =>
+            log.error(s"** Exception was thrown, $exception")
+            allowed = false
+        }
+
+        log.info(s">> allowed = $allowed")
       } else {
         log.info(s">> getUserResponse = None")
         // create corresponding worker
@@ -65,7 +84,7 @@ class DispatcherActor extends Actor {
         // before SLA will be returned by SlaService, use graceRps for calculating PRS
       }
 
-      sender() ! GetAllowedByTokenResponse(None)
+      sender() ! GetAllowedByTokenResponse(Option(allowed))
       log.info("<== GetAllowedByTokenRequest command")
     case _ =>
   }

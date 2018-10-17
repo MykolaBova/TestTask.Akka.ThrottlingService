@@ -15,12 +15,11 @@ object UserStatus {
   case object Deleting extends UserStatusVal
 }
 
-case class User(token : String, user : Option[String], status : UserStatus.UserStatusVal)
+case class User(user : Option[String], status : UserStatus.UserStatusVal)
 
 case class GetUserRequest(token : String)
 case class GetUserResponse(user : Option[User])
 case class SetUserRequest(token : String, user : User)
-
 
 class RegistryActor extends Actor {
 
@@ -47,7 +46,7 @@ class RegistryActor extends Actor {
       sender() ! GetUserResponse(user)
       log.info("===> GetUserRequest command")
     case command : SetUserRequest =>
-      log.info("<=== SetUserRequest command")
+      log.info(s"<=== SetUserRequest command $command")
       users += (command.token -> command.user)
       log.info("===> SetUserRequest command")
     case _ =>
